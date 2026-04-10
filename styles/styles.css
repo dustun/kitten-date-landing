@@ -5,7 +5,11 @@
     --pink-dark: #ff4d8c;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
 body {
     min-height: 100vh;
@@ -27,6 +31,7 @@ body::before {
     radial-gradient(circle at 85% 25%, rgba(255,107,157,0.15) 0%, transparent 50%),
     radial-gradient(circle at 30% 80%, rgba(255,107,157,0.12) 0%, transparent 50%);
     animation: gentleFloat 30s linear infinite;
+    pointer-events: none;
 }
 
 @keyframes gentleFloat {
@@ -50,7 +55,7 @@ body::before {
     50% { transform: translateY(-25px) rotate(3deg); }
 }
 
-/* Карточка */
+/* Главная карточка */
 .card {
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(12px);
@@ -94,6 +99,7 @@ button {
     cursor: pointer;
     box-shadow: 0 12px 25px rgba(0, 0, 0, 0.18);
     white-space: nowrap;
+    transition: all 0.3s ease;
 }
 
 button.yes {
@@ -110,33 +116,48 @@ button.no {
     color: #4a2c3e;
 }
 
-/* Модальное окно */
+/* ========== МОДАЛКА ========== */
 .modal {
     display: none;
     position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.55);
-    z-index: 100;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.65);
+    z-index: 9999;           /* Очень высокий z-index */
     align-items: center;
     justify-content: center;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.modal.show {
+    display: flex;
+    opacity: 1;
 }
 
 .modal-content {
     background: white;
     border-radius: 40px;
     padding: 50px 60px;
-    max-width: 480px;
+    max-width: 500px;
     width: 90%;
     text-align: center;
-    box-shadow: 0 30px 60px rgba(255, 107, 157, 0.4);
-    border: 10px solid var(--pink-main);
+    box-shadow: 0 40px 80px rgba(255, 107, 157, 0.45);
+    border: 12px solid var(--pink-main);
+    transform: scale(0.8);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal.show .modal-content {
+    transform: scale(1);
 }
 
 .modal-text {
     font-size: 28px;
-    line-height: 1.4;
-    margin-bottom: 40px;
+    line-height: 1.45;
+    margin-bottom: 45px;
     color: #4a2c3e;
     font-family: 'Comic Neue', cursive;
 }
@@ -150,13 +171,20 @@ button.no {
 
 .modal-btn {
     font-size: 24px;
-    padding: 16px 40px;
+    padding: 16px 45px;
     border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Comic Neue', cursive;
 }
 
 .modal-btn.yes {
     background: #ff6b9d;
     color: white;
+}
+
+.modal-btn.yes:hover {
+    transform: scale(1.08);
 }
 
 .modal-btn.no {
