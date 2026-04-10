@@ -37,19 +37,47 @@ const modalNo = document.getElementById('modal-no');
 
 let refusalCount = 0;
 
-const messages = [
-    "Может всё-таки да? Котик так ждет… 🥺",
-    "Ты точно уверена? Котик очень грустит… 😿",
-    "Последний раз спрашиваю… Пожалуйста? 💕",
-    "Ну пожалуйста-пожалуйста? Я приготовил тебе сюрприз… ✨",
-    "Хорошо… А если я скажу, что без тебя этот день не будет таким волшебным? 🥹"
+// Новый позитивный сценарий отказов
+const refusalMessages = [
+    "Может всё-таки да? Котик так старался… 🥺",
+    "Ну пожалуйста, ну очень прошу… 💕",
+    "А если я скажу, что уже купил мороженое? 🍦",
+    "Последний шанс сказать «да»… или я начну мурлыкать! 😻",
+    "Ладно… а если мы всё равно пойдём? 😉"
 ];
 
-// Открытие модалки только при нажатии "Нет" в главной карточке
+const finalPositiveMessage = "Отлично! Значит, мы всё равно идём на свидание! 🐱💖\nЯ знал, что ты не устоишь!";
+
+// Открытие модалки при нажатии «Нет»
 function openModal() {
     refusalCount = 0;
-    modalText.textContent = messages[0];
+    modalText.textContent = refusalMessages[0];
     modal.classList.add('show');
+}
+
+// Финальное радостное сообщение (всегда позитивное)
+function showFinalHappyMessage() {
+    closeModal();
+    createConfetti();
+
+    const final = document.createElement('div');
+    final.style.cssText = `
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        background: white; padding: 60px 80px; border-radius: 40px;
+        font-size: 34px; text-align: center; max-width: 660px; z-index: 10000;
+        box-shadow: 0 40px 90px rgba(255,107,157,0.5); border: 14px solid #ff6b9d;
+        font-family: 'Comic Neue', cursive; line-height: 1.45;
+        white-space: pre-line;
+    `;
+    final.textContent = finalPositiveMessage;
+    document.body.appendChild(final);
+
+    setTimeout(() => {
+        final.style.transition = 'all 1.2s';
+        final.style.opacity = '0';
+        final.style.transform = 'translate(-50%, -70%) scale(0.9)';
+        setTimeout(() => final.remove(), 1400);
+    }, 6000);
 }
 
 // Закрытие модалки
@@ -57,72 +85,26 @@ function closeModal() {
     modal.classList.remove('show');
 }
 
-// Показ финального радостного сообщения
-function showSuccessMessage() {
-    closeModal();
-    createConfetti();
-    const final = document.createElement('div');
-    final.style.cssText = `
-        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        background: white; padding: 55px 75px; border-radius: 40px;
-        font-size: 36px; text-align: center; max-width: 640px; z-index: 10000;
-        box-shadow: 0 40px 90px rgba(255,107,157,0.5); border: 14px solid #ff6b9d;
-        font-family: 'Comic Neue', cursive; line-height: 1.4;
-    `;
-    final.textContent = "УРААА! Ты согласилась! 💖🐱 Я самый счастливый котик на свете!";
-    document.body.appendChild(final);
-
-    setTimeout(() => {
-        final.style.transition = 'all 1.2s';
-        final.style.opacity = '0';
-        final.style.transform = 'translate(-50%, -70%) scale(0.9)';
-        setTimeout(() => final.remove(), 1200);
-    }, 5500);
-}
-
-// Показ грустного сообщения
-function showSadMessage() {
-    closeModal();
-    const sad = document.createElement('div');
-    sad.style.cssText = `
-        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        background: white; padding: 50px 70px; border-radius: 40px;
-        font-size: 32px; text-align: center; max-width: 600px; z-index: 10000;
-        box-shadow: 0 30px 70px rgba(0,0,0,0.3); border: 12px solid #ff9eb7;
-        font-family: 'Comic Neue', cursive;
-    `;
-    sad.textContent = "😿 Котик совсем расстроился… Может в следующий раз ты скажешь «да»?";
-    document.body.appendChild(sad);
-
-    setTimeout(() => {
-        sad.style.transition = 'all 1s';
-        sad.style.opacity = '0';
-        sad.style.transform = 'translate(-50%, -65%)';
-        setTimeout(() => sad.remove(), 1000);
-    }, 5000);
-}
-
 // === Обработчики ===
 
-// Кнопка "Да" в главной карточке → сразу радость
-yesBtn.addEventListener('click', () => {
-    showSuccessMessage();
-});
+// Главная кнопка "Да" → сразу счастье
+yesBtn.addEventListener('click', showFinalHappyMessage);
 
-// Кнопка "Нет" в главной карточке → открываем цепочку вопросов
+// Главная кнопка "Нет" → начинаем цепочку
 noBtn.addEventListener('click', openModal);
 
-// Кнопка "Да" в модалке → радость
-modalYes.addEventListener('click', showSuccessMessage);
+// В модалке "Да" → сразу праздник
+modalYes.addEventListener('click', showFinalHappyMessage);
 
-// Кнопка "Нет" в модалке → следующий вопрос или грусть
+// В модалке "Нет" → следующий вопрос
 modalNo.addEventListener('click', () => {
     refusalCount++;
 
-    if (refusalCount >= messages.length) {
-        showSadMessage();
+    if (refusalCount >= refusalMessages.length) {
+        // Последний отказ всё равно заканчивается позитивно
+        showFinalHappyMessage();
     } else {
-        modalText.textContent = messages[refusalCount];
+        modalText.textContent = refusalMessages[refusalCount];
     }
 });
 
@@ -146,17 +128,17 @@ function createConfetti() {
             c.style.background = 'transparent';
         }
 
-        const duration = 2500 + Math.random() * 4000;
+        const duration = 2800 + Math.random() * 3500;
         document.body.appendChild(c);
 
         setTimeout(() => {
             c.style.transition = `all ${duration}ms linear`;
-            c.style.transform = `translateY(${window.innerHeight + 150}px) rotate(${Math.random()*900 - 300}deg)`;
+            c.style.transform = `translateY(${window.innerHeight + 200}px) rotate(${Math.random() * 800 - 200}deg)`;
             c.style.opacity = '0';
-        }, 30);
+        }, 50);
 
-        setTimeout(() => c.remove(), duration + 200);
+        setTimeout(() => c.remove(), duration + 300);
     }
 }
 
-console.log('%c🐱 Логика кнопок исправлена! Теперь всё работает правильно.', 'color:#ff6b9d;font-size:18px;');
+console.log('%c🐱 Сценарий отказов обновлён! Теперь всегда позитивный финал 💕', 'color:#ff6b9d;font-size:18px;');
