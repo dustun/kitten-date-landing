@@ -1,4 +1,4 @@
-// Глаза котёнка (оставил без изменений)
+// Глаза котёнка
 const kitten = document.getElementById('kitten');
 const leftPupil = document.getElementById('left-pupil');
 const rightPupil = document.getElementById('right-pupil');
@@ -31,109 +31,119 @@ function updateEyes(e) {
 
 document.addEventListener('mousemove', updateEyes);
 
-// Кнопки
+// Элементы
 const yesBtn = document.getElementById('yesBtn');
 const noBtn = document.getElementById('noBtn');
-const card = document.querySelector('.card');
+const modal = document.getElementById('modal');
+const modalText = document.getElementById('modal-text');
+const modalYes = document.getElementById('modal-yes');
+const modalNo = document.getElementById('modal-no');
 
-// === Улучшенная логика убегания кнопки "Нет" ===
-function moveNoButton() {
-    if (!card || !noBtn) return;
+let refusalCount = 0;
 
-    // Делаем кнопку абсолютно позиционированной внутри карточки
-    if (noBtn.style.position !== 'absolute') {
-        noBtn.style.position = 'absolute';
-    }
+const messages = [
+    "Может всё-таки да? Котик так ждет… 🥺",
+    "Ты точно уверена? Котик очень грустит… 😿",
+    "Последний раз спрашиваю… Пожалуйста? 💕",
+    "Ну пожалуйста-пожалуйста? Я приготовил тебе сюрприз… ✨",
+    "Хорошо… А если я скажу, что без тебя этот день не будет таким волшебным? 🥹"
+];
 
-    const cardRect = card.getBoundingClientRect();
-    const btnW = noBtn.offsetWidth || 240;
-    const btnH = noBtn.offsetHeight || 70;
-    const padding = 50;
-
-    const maxX = cardRect.width - btnW - padding * 2;
-    const maxY = cardRect.height - btnH - padding * 2;
-
-    const newX = padding + Math.random() * Math.max(10, maxX);
-    const newY = padding + Math.random() * Math.max(10, maxY);
-
-    noBtn.style.left = `${newX}px`;
-    noBtn.style.top = `${newY}px`;
-    noBtn.style.transform = 'scale(1.12) rotate(8deg)';
-
-    setTimeout(() => {
-        noBtn.style.transform = 'scale(1) rotate(0deg)';
-    }, 220);
-}
-
-// Убегает при приближении курсора
-document.addEventListener('mousemove', (e) => {
-    if (!noBtn || noBtn.style.position !== 'absolute') return;
-
-    const rect = noBtn.getBoundingClientRect();
-    const dist = Math.hypot(
-        e.clientX - (rect.left + rect.width / 2),
-        e.clientY - (rect.top + rect.height / 2)
-    );
-
-    if (dist < 170) {
-        moveNoButton();
-    }
-});
-
-// Убегает при наведении и попытке нажать
-noBtn.addEventListener('mouseenter', moveNoButton);
-noBtn.addEventListener('mousedown', (e) => {
-    e.preventDefault();
-    moveNoButton();
-});
-
-// Кнопка "Да"
+// Нажатие на кнопку "Да" в главной карточке
 yesBtn.addEventListener('click', () => {
     createConfetti();
-
-    const msg = document.createElement('div');
-    msg.style.cssText = `position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
-        font-size:68px;z-index:1000;color:#ff4d8c;text-shadow:0 0 25px #fff;
-        pointer-events:none;font-family:'Comic Neue',cursive;`;
-    msg.textContent = 'УРААА! 💖🐱';
-    document.body.appendChild(msg);
-
-    setTimeout(() => {
-        msg.style.transition = 'all 1.2s';
-        msg.style.opacity = '0';
-        msg.style.transform = 'translate(-50%, -90%) scale(1.6)';
-        setTimeout(() => msg.remove(), 1300);
-    }, 1600);
+    showFinalMessage("УРААА! Я так счастлив! 💖🐱 Давай скорее планировать наше свидание!");
 });
+
+// Нажатие на кнопку "Нет" в главной карточке
+noBtn.addEventListener('click', () => {
+    refusalCount = 0;
+    showModal();
+});
+
+// Показ модального окна
+function showModal() {
+    if (refusalCount >= messages.length) {
+        showFinalMessage("😿 Котик совсем расстроился… Может в другой раз ты будешь добрее к нам?");
+        return;
+    }
+
+    modalText.textContent = messages[refusalCount];
+    modal.style.display = 'flex';
+}
+
+// Кнопка "Да" в модалке
+modalYes.addEventListener('click', () => {
+    modal.style.display = 'none';
+    createConfetti();
+    showFinalMessage("УРААА! Ты согласилась! 💖🐱 Я самый счастливый котик на свете!");
+});
+
+// Кнопка "Нет" в модалке
+modalNo.addEventListener('click', () => {
+    refusalCount++;
+    modal.style.display = 'none';
+
+    // Небольшая задержка перед следующим вопросом
+    setTimeout(() => {
+        showModal();
+    }, 400);
+});
+
+// Финальное сообщение
+function showFinalMessage(text) {
+    const finalMsg = document.createElement('div');
+    finalMsg.style.cssText = `
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        background: white; padding: 50px 70px; border-radius: 40px;
+        font-size: 32px; text-align: center; max-width: 600px; z-index: 200;
+        box-shadow: 0 30px 70px rgba(255,107,157,0.5); border: 12px solid #ff6b9d;
+        font-family: 'Comic Neue', cursive; line-height: 1.4;
+    `;
+    finalMsg.textContent = text;
+    document.body.appendChild(finalMsg);
+
+    // Автоматически убираем через 6 секунд
+    setTimeout(() => {
+        finalMsg.style.transition = 'all 1s';
+        finalMsg.style.opacity = '0';
+        finalMsg.style.transform = 'translate(-50%, -70%) scale(0.9)';
+        setTimeout(() => finalMsg.remove(), 1000);
+    }, 6000);
+}
 
 // Конфетти
 function createConfetti() {
-    for (let i = 0; i < 90; i++) {
+    for (let i = 0; i < 100; i++) {
         const c = document.createElement('div');
         c.classList.add('confetti');
-
         const colors = ['#ff6b9d', '#ff9eb7', '#ff4d8c', '#ffb6c1'];
         c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
         c.style.left = Math.random() * 100 + 'vw';
-        c.style.top = '-30px';
-        c.style.width = (8 + Math.random() * 12) + 'px';
+        c.style.top = '-40px';
+        c.style.width = (10 + Math.random() * 14) + 'px';
         c.style.height = c.style.width;
 
-        if (Math.random() > 0.65) {
+        if (Math.random() > 0.7) {
             c.textContent = '💕';
-            c.style.fontSize = '20px';
+            c.style.fontSize = '22px';
             c.style.background = 'transparent';
         } else {
             c.style.borderRadius = '50%';
         }
 
-        const duration = 2800 + Math.random() * 3200;
+        const duration = 2500 + Math.random() * 3500;
         c.style.animationDuration = duration + 'ms';
-        c.style.animationTimingFunction = 'linear';
-
         document.body.appendChild(c);
-        setTimeout(() => c.remove(), duration + 100);
+        setTimeout(() => c.remove(), duration);
     }
 }
 
-console.log('%c🐱 Более красивый и романтичный лендинг готов! Кнопка "Нет" теперь почти непобедима 💕', 'color:#ff6b9d;font-size:17px;font-family:Comic Neue');
+// Закрытие модалки при клике вне окна (по желанию)
+modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+        modal.style.display = 'none';
+    }
+});
+
+console.log('%c🐱 Лендинг с последовательными вопросами готов!', 'color:#ff6b9d;font-size:18px;font-family:Comic Neue');
